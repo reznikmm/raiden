@@ -1,6 +1,6 @@
 # Raiden
 
-[![Build status](https://github.com/reznikmm/raiden/actions/workflows/alire.yml/badge.svg)](https://github.com/reznikmm/raiden/actions/workflows/alire.yml)
+[![Build with Alire](https://github.com/reznikmm/raiden/actions/workflows/alire.yml/badge.svg)](https://github.com/reznikmm/raiden/actions/workflows/alire.yml)
 [![Alire](https://img.shields.io/endpoint?url=https://alire.ada.dev/badges/raiden.json)](https://alire.ada.dev/crates/raiden.html)
 [![REUSE status](https://api.reuse.software/badge/github.com/reznikmm/raiden)](https://api.reuse.software/info/github.com/reznikmm/raiden)
 
