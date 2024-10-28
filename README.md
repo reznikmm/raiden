@@ -79,6 +79,10 @@ begin
 end Test_String;
 ```
 
+## Command line tool
+
+A simple command line tool is provided in the `tool` folder.
+
 ## Contributing
 
 Contributions are welcome! If you'd like to contribute to the library,
