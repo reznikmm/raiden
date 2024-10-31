@@ -8,7 +8,10 @@ with Ada.Text_IO;
 
 with Interfaces;
 
+with VSS.Application;
 with VSS.Command_Line;
+with VSS.Environments;
+with VSS.String_Vectors;
 with VSS.Strings.Conversions;
 
 with Raiden;
@@ -22,7 +25,7 @@ procedure Tool is
      (Short_Name  => "k",
       Long_Name   => "key",
       Value_Name  => "Hex value of the key",
-      Description => "Encoding/decoding key");
+      Description => "Encoding/decoding key ($RAIDEN_KEY is default)");
 
    Decode_Flag : constant VSS.Command_Line.Binary_Option :=
      (Short_Name  => "d",
@@ -37,10 +40,16 @@ procedure Tool is
      (Description => "Output file",
       Name        => "<output>");
 
+   Env    : constant VSS.Environments.Process_Environment :=
+     VSS.Application.System_Environment;
+
    Input  : Ada.Streams.Stream_IO.File_Type;
    Output : Ada.Streams.Stream_IO.File_Type;
    Stream : Ada.Streams.Stream_IO.Stream_Access;
    Key    : Raiden.Key;
+
+   function Strip_Underscore
+     (Text : VSS.Strings.Virtual_String) return VSS.Strings.Virtual_String;
 
    procedure Encode;
    procedure Decode;
@@ -100,6 +109,26 @@ procedure Tool is
          end;
       end loop;
    end Encode;
+
+   ----------------------
+   -- Strip_Underscore --
+   ----------------------
+
+   function Strip_Underscore
+     (Text : VSS.Strings.Virtual_String) return VSS.Strings.Virtual_String
+   is
+      List : constant VSS.String_Vectors.Virtual_String_Vector :=
+        Text.Split ('_');
+
+      Result : VSS.Strings.Virtual_String;
+   begin
+      for Item of List loop
+         Result.Append (Item);
+      end loop;
+
+      return Result;
+   end Strip_Underscore;
+
 begin
    VSS.Command_Line.Add_Option (Decode_Flag);
    VSS.Command_Line.Add_Option (Key_Flag);
@@ -108,13 +137,18 @@ begin
    VSS.Command_Line.Add_Help_Option;
    VSS.Command_Line.Process;
 
-   if Key_Flag.Is_Specified then
+   if Key_Flag.Is_Specified or Env.Contains ("RAIDEN_KEY") then
       declare
          package Unsigned_32_IO is new Ada.Text_IO.Modular_IO
            (Interfaces.Unsigned_32);
 
+         Text : constant VSS.Strings.Virtual_String :=
+           (if Key_Flag.Is_Specified then Key_Flag.Value
+            else Env.Value ("RAIDEN_KEY"));
+
          Value : constant String :=
-           VSS.Strings.Conversions.To_UTF_8_String (Key_Flag.Value);
+           VSS.Strings.Conversions.To_UTF_8_String
+             (Strip_Underscore (Text));
 
          To : Natural;
       begin
